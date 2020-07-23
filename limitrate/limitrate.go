@@ -1,4 +1,4 @@
-package main
+package limitrate
 
 import (
 	"fmt"
@@ -8,15 +8,8 @@ import (
 var captis = 5
 var ch = make(chan struct{}, captis)
 
-func main() {
-	fmt.Println("this is a benging")
-	go testBucket()
-	for i := 0; i < 5; i++ {
-		go getBucket()
-	}
-	select {}
-}
-func testBucket() {
+// TestBucket  创建chan
+func TestBucket() {
 	ticker := time.NewTicker(time.Millisecond)
 	for {
 		select {
@@ -31,7 +24,8 @@ func testBucket() {
 
 }
 
-func getBucket() {
+//GetBucket  获取chan
+func GetBucket() {
 	for {
 		time.Sleep(5 * time.Millisecond)
 		select {
@@ -41,4 +35,9 @@ func getBucket() {
 			fmt.Println("no get ch")
 		}
 	}
+}
+
+//Test chuangjaing
+func Test() {
+	fmt.Println("yangqiang")
 }
