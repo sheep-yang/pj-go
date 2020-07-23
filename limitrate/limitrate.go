@@ -37,7 +37,4 @@ func GetBucket() {
 	}
 }
 
-//Test chuangjaing
-func Test() {
-	fmt.Println("yangqiang")
-}
+
