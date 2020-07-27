@@ -27,7 +27,7 @@ func checkErr(err error) {
 
 // init 获取白名单用户信息,生成用户信息;
 func init() {
-	path := "you path"
+	path := "you own path"
 	fileinfo, err := os.Open(path)
 	checkErr(err)
 	defer fileinfo.Close()
