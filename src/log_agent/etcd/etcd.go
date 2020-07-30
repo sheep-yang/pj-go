@@ -15,10 +15,10 @@ var (
 )
 
 //初始化etcd 连接信息
-func Init() {
+func Init(host string) {
 	//配置
 	config = clientv3.Config{
-		Endpoints:   []string{"132.232.11.147:2382"},
+		Endpoints:   []string{host},
 		DialTimeout: time.Second * 5,
 	}
 	//连接

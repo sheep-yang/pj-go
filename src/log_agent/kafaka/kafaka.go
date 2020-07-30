@@ -13,8 +13,7 @@ var (
 	msg    *sarama.ProducerMessage
 )
 
-//初始化Kafaka
-
+//Init 初始化Kafaka
 func Init(kafakaIpaddr string, Topic string) {
 	fmt.Println("初始化Kafaka")
 	config := sarama.NewConfig()
@@ -34,20 +33,18 @@ func Init(kafakaIpaddr string, Topic string) {
 
 }
 
-//往kakafa发送消息
-
+// SendMsg to kakafa发送消息
 func SendMsg() {
 	for {
 		taifmsg := <-logtailf.Msgchan
 		msg.Value = sarama.StringEncoder(taifmsg)
-		pid, offset, err := client.SendMessage(msg)
+		_, _, err := client.SendMessage(msg)
 		if err != nil {
 			fmt.Println("send message failed,", err)
 			return
 		}
-		fmt.Printf("pid:%v offset:%v\n", pid, offset)
+		//	fmt.Printf("pid:%v offset:%v\n", pid, offset)
 		fmt.Printf("接受到的消息是:%s\n", taifmsg)
-		//	fmt.Println("消息发送成功")
 	}
 
 }
