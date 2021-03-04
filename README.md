@@ -1,15 +1,18 @@
-•	Kubernetes的声明式API对象和控制器模型
-•	Kubernetes API编程范式
-•	如何编写一个自定义控制器
+•Kubernetes的声明式API对象和控制器模型
+•Kubernetes API编程范式
+•如何编写一个自定义控制器
 
 声明式API对象的编程范式
 2.1 API对象的组织方式
-API对象在etcd里的完整资源路径是由 Group（API组）、Version（API版本）和Resource（API资源类型）三部分组成。Kubernetes创建资源对象的流程：
+API对象在etcd里的完整资源路径是由 Group（API组）、Version（API版本）和Resource（API资源类型）三部分组成。
+Kubernetes创建资源对象的流程：
 首先，Kubernetes读取用户提交的yaml文件
 然后，Kubernetes去匹配yaml文件中API对象的组
 再次，Kubernetes去匹配yaml文件中API对象的版本号
 最后，Kubernetes去匹配yaml文件中API对象的资源类型
 因此，我们需要根据需求，先进行自定义资源(CRD - Custom Resource Definition)，它将包括API对象组、版本号、资源类型：
+
+
 
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -24,13 +27,17 @@ spec:
     scope: Namespaced  
 	shortNames:
     - vpc
-    - 
+ 
+ - 
 自定义资源控制器
 控制器与APIServer通信
-Informer是APIServer与Kubernetes互相通信的桥梁，它通过Reflector实现ListAndWatch方法来“获取”和“监听”对象实例的变化。每当APIServer接收到创建、更新和删除实例的请求，Refector都会收到“事件通知”，然后将变更的事件推送到先进先出的队列中。Informer会不断从上一队列中读取增量，然后根据增量事件的类型创建或者更新本地对象的缓存。Informer会根据事件类型触发事先定义好的ResourceEventHandler（具体为AddFunc、UpdatedFunc和DeleteFunc，分别对应API对象的“添加”、“更新”和“删除”事件），同时每隔一定的时间，Informer也会对本地的缓存进行一次强制更新。
+Informer是APIServer与Kubernetes互相通信的桥梁，它通过Reflector实现ListAndWatch方法来“获取”和“监听”对象实例的变化。
+每当APIServer接收到创建、更新和删除实例的请求，Refector都会收到“事件通知”，然后将变更的事件推送到先进先出的队列中。
+Informer会不断从上一队列中读取增量，然后根据增量事件的类型创建或者更新本地对象的缓存。Informer会根据事件类型触发事先定义好的ResourceEventHandler（具体为AddFunc、UpdatedFunc和DeleteFunc，分别对应API对象的“添加”、“更新”和“删除”事件），同时每隔一定的时间，Informer也会对本地的缓存进行一次强制更新。
 WorkQueue同步Informer和控制循环(Control Loop)交互的数据
 Controller Loop扮演Kubernetes控制器的角色，确保期望与实际的运行状态是一致的。
 使用控制器模式，与Kubernetes里API对象的“增、删、改、查”进行协作，进而完成用户业务逻辑的编写过程，这就是声明式API对象的编程范式，即"Kubernetes编程范式"。
+
 
 使用Operator SDK生成go项目框架
 operator-sdk init --domain=example.com --repo=github.com/example-inc/vpc-operator
@@ -182,6 +189,7 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	//return reconcile.Result{}, nil
 	return reconcile.Result{Requeue: true}, nil
 }
+
 运行 controller
 运行controller有两种方法，可以在本地直接运行controller，也可以打包到k8s运行。
 
