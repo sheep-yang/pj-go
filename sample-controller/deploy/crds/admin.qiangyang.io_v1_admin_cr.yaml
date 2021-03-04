@@ -1,0 +1,7 @@
+apiVersion: admin.qiangyang.io/v1
+kind: Admin
+metadata:
+  name: example-admin
+spec:
+  # Add fields here
+  size: 3
