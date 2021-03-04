@@ -1,9 +1,13 @@
 •Kubernetes的声明式API对象和控制器模型
+
 •Kubernetes API编程范式
+
 •如何编写一个自定义控制器
 
 声明式API对象的编程范式
-2.1 API对象的组织方式
+
+ API对象的组织方式
+ 
 API对象在etcd里的完整资源路径是由 Group（API组）、Version（API版本）和Resource（API资源类型）三部分组成。
 Kubernetes创建资源对象的流程：
 首先，Kubernetes读取用户提交的yaml文件
@@ -13,19 +17,22 @@ Kubernetes创建资源对象的流程：
 因此，我们需要根据需求，先进行自定义资源(CRD - Custom Resource Definition)，它将包括API对象组、版本号、资源类型：
 
 
-
 apiVersion: apiextensions.k8s.io/v1beta1
+
 kind: CustomResourceDefinition
+
 metadata:
     name: myresources.network
+    
 spec: 
     group: network
+    
     version: v1
     names:
       kind: Vpc
       plural: myresources
     scope: Namespaced  
-	shortNames:
+    shortNames:
     - vpc
  
  - 
@@ -40,19 +47,27 @@ Controller Loop扮演Kubernetes控制器的角色，确保期望与实际的运�
 
 
 使用Operator SDK生成go项目框架
+
 operator-sdk init --domain=example.com --repo=github.com/example-inc/vpc-operator
-为刚才生成代码添加自定义API。Add a custom API for the code just generated
+
+为刚才生成代码添加自定义API
+
 operator-sdk create api --group network --version v1 --kind Vpc --resource=true --controller=true
 添加自定义控制器。
+
 operator-sdk add controller --api-version=network.example.com/v1 --kind=Vpc
 
 修改api/v1/xxxx_types.go 文件里面的自定义的字段；
+
 // VpcSpec defines the desired state of Vpc
+
+
 type VpcSpec struct {
+
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
 	// Foo is an example field of Vpc. Edit Vpc_types.go to remove/update
+    
 	VpcName   string `json:"vpcname,omitempty"`
 	CidrBlock string `json:"cidrblock,omitempty"`
 	SubnetNum int64  `json:"subnetnum,omitempty"`
@@ -60,6 +75,7 @@ type VpcSpec struct {
 
 // VpcStatus defines the observed state of Vpc
 type VpcStatus struct {
+
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	PodNames  []string `json:"podNames,omitempty"`
@@ -68,10 +84,14 @@ type VpcStatus struct {
 
 监听资源
 核心调度函数就是Reconcile
+
 request就是发生变动的资源信息，主要就是namespace和name。
+
 因为我们之前监听并加入队列的一定是Demo资源，所以我们直接利用k8s客户端Get获取发生变动的Demo对象。
+
 func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
+	
+    reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling ImoocPod")
 	// Fetch the ImoocPod instance
 	instance := &k8sv1alpha1.ImoocPod{}
@@ -86,11 +106,14 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
- 
+    
 	lbls := labels.Set{
 		"app": instance.Name,
 	}
 	existingPods := &corev1.PodList{}
+        
+         //需要自己手动添加的地方
+	 
 	//1:获取name对应的所以的pod列表
 	err = r.client.List(context.TODO(), existingPods, &client.ListOptions{
 		Namespace:     request.Namespace,
@@ -190,12 +213,15 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	return reconcile.Result{Requeue: true}, nil
 }
 
-运行 controller
-运行controller有两种方法，可以在本地直接运行controller，也可以打包到k8s运行。
+
+运行controller有两种方法
+
+可以在本地直接运行controller，也可以打包到k8s运行。
 
 本地运行controller
 在本地运行controller直接go run就可以了
 export WATCH_NAMESPACE=default
 go run cmd/manager/main.go
+
 打包提交到k8s运行
 如果我们controller完成，我们可以将其打包放到k8s上运行
